@@ -13,8 +13,7 @@ class Project extends Model
     protected $fillable = [
         'name',
         'description',
-        'createdBy',
-        'createdAt',
+        'user_id',
     ];
 
     //cast to carbon objects for easier date handling

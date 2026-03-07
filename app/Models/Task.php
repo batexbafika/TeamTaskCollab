@@ -9,6 +9,10 @@ class Task extends Model
 {
     use HasFactory;
     //fillable fields
+    protected $primaryKey = 'taskID'; //this tells eloquent to use taskID as the primary key instead of id
+    public $incrementing = true;
+    protected $keyType = 'int';
+
      protected $fillable = [
         'description',
         'status',

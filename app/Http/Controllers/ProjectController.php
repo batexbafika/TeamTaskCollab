@@ -2,83 +2,75 @@
 
 namespace App\Http\Controllers;
 
-
-use App\Models\user;
-use App\Models\project;
+use App\Models\Project;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
+
 
 class ProjectController extends Controller
 {
-    //registration end point public
-
-    public function register(Request  $request){
-        //Vlidate all request to this end point
-
+    // Step 1: Create Project
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users|max:255',
-            'password' => ['required', 'confirmed', Password::defaults()],
-            'role' => 'sometimes|in:student,company', //default will be student
-            'company_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
-        //Now create user using the validated data
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role']?? 'student',
-        ]);
+        $project = new Project($validated);
+        $project->user_id = $request->user()->id; // assign to logged-in user
+        $project->save();
 
-        //if role is company, create the company record 
-
-         if($user->role === 'company'){
-            $user->company()->create([
-                'company_name' => $validated['company_name']?? $validated['name'],
-            ]);
-         }
-         $token = $user->createToken('auth-token')->plainTextToken;
-         
-         //customized registration feetback depending on roles
-         $message = $user->role === 'company' ? 'Company account created successfully' : 'Student account created successfully';
-
-         //Return Json
-         return response()->json([
-            'message' => $message,
-            'user' => $user->load('company'), //loads company relationship for this user
-            'token' => $token,
-         ], 201);
-
+        return response()->json($project, 201);
     }
 
-    //Login and redirect to dashboard
+    //filter project by loged in user
+    public function index(Request $request)
+    {
+    // Fetch projects belonging to the authenticated user
+    $projects = Project::where('user_id', $request->user()->id)->with(['tasks', 'members'])->get();
+    return response()->json($projects);
+    }
 
-    public function login(Request $request){
-            //validate incoming request
-            $validated = $request->validate([
-                'email' => 'required|email',
-                'password' => 'required',
-            ]);
+    //find project be id only owned by loged in user
+    public function show(Request $request, $id)
+   {
+    // Find project by ID, but only if it belongs to the authenticated user
+    $project = Project::where('user_id', $request->user()->id)->with(['tasks', 'members'])->findOrFail($id);
 
-            //find the first user with this email
-            $user = User::where('email', $validated['email'])->first(); //stores boolean : true of false
+    return response()->json($project);
+    }
 
-            //check the password from request against stored password
-            if(! $user|| !Hash::check($validated['password'], $user->password) ){
-                throw ValidationException::withMessages([
-                    'email' => ['The provided credential are incorrect'],
-                ]);
-            }
-            //create a token for this user
-            $token = $user->createToken('auth_token')->plainTextToken;
+    public function update(Request $request, $id)
+{
+    // Validate input
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+    ]);
 
-            return response()->json([
-                'message' => 'Login Successful',
-                'user' => $user,
-                'token' => $token,
-            ]);
+    // Find project belonging to authenticated user
+    $project = Project::where('user_id', $request->user()->id)->findOrFail($id);
+
+    // Update with validated data
+    $project->update($validated);
+
+    return response()->json([
+        'message' => 'Project updated successfully',
+        'project' => $project
+    ]);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        // Find project belonging to authenticated user
+        $project = Project::where('user_id', $request->user()->id)->findOrFail($id);
+
+        // Delete the project
+        $project->delete();
+
+        return response()->json([
+            'message' => 'Project deleted successfully'
+        ]);
     }
 }

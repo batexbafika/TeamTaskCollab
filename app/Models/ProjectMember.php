@@ -10,6 +10,11 @@ class ProjectMember extends Model
     //
     use HasFactory;
 
+        protected $table = 'project_members';
+        protected $primaryKey = 'membershipID';   // <-- important
+        public $incrementing = true;
+        protected $keyType = 'int';
+
         protected $fillable = [
         'projectID',
         'userID',
