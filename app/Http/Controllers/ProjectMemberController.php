@@ -19,32 +19,38 @@ class ProjectMemberController extends Controller
 //store to add a member to a project
 public function store(Request $request, $projectID)
 {
-    // Validate incoming request
+    $project = Project::findOrFail($projectID);
+
+    // Authorize against the project
+    $this->authorize('create', [ProjectMember::class, $project]);
+
     $validated = $request->validate([
-        'userID'   => 'required|exists:users,id',
-        'role'     => 'required|string|max:50',
-        'joinedAt' => 'nullable|date',
+        'userID' => 'required|exists:users,userID',
+        'role'   => 'required|string|max:50',
     ]);
 
-    // Create a new membership record
     $membership = ProjectMember::create([
         'projectID' => $projectID,
         'userID'    => $validated['userID'],
         'role'      => $validated['role'],
-        'joinedAt'  => $validated['joinedAt'] ?? now(),
+        'joinedAt'  => now(),
     ]);
 
     return response()->json([
-        'message'    => 'Member added successfully',
+        'message'    => 'Member added to project successfully',
         'membership' => $membership
     ]);
 }
 
+
  //remove a member from a project
-   public function destroy($projectID, $membershipID)
+  public function destroy($projectID, $membershipID)
 {
-    // Find the membership record by project + membershipID
-    $membership = ProjectMember::where('projectID', $projectID)->where('membershipID', $membershipID)->firstOrFail();
+    $membership = ProjectMember::where('projectID', $projectID)
+        ->where('membershipID', $membershipID)
+        ->firstOrFail();
+
+    $this->authorize('delete', $membership);
 
     $membership->delete();
 
@@ -53,18 +59,20 @@ public function store(Request $request, $projectID)
     ]);
 }
 
+
 //update a member's role in a project
 public function update(Request $request, $projectID, $membershipID)
 {
-    // Validate incoming request 'role'
+    $membership = ProjectMember::where('projectID', $projectID)
+        ->where('membershipID', $membershipID)
+        ->firstOrFail();
+
+    $this->authorize('update', $membership);
+
     $validated = $request->validate([
-        'role'     => 'sometimes|required|string|max:50',
+        'role' => 'sometimes|required|string|max:50',
     ]);
 
-    // Find the membership record
-    $membership = ProjectMember::where('projectID', $projectID)->where('membershipID', $membershipID)->firstOrFail();
-
-    // Update with validated data
     $membership->update($validated);
 
     return response()->json([
@@ -72,5 +80,6 @@ public function update(Request $request, $projectID, $membershipID)
         'membership' => $membership
     ]);
 }
+
  
 }

@@ -9,6 +9,12 @@ class TaskAssignment extends Model
 {
     use HasFactory;
     //fillable fields
+
+    protected $table = 'task_assignments';
+    protected $primaryKey = 'assignmentID';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $fillable = [
         'taskID',
         'userID',
@@ -17,14 +23,14 @@ class TaskAssignment extends Model
 
 
     //relationships
-    public function task()
-    {
-        return $this->belongsTo(Task::class, 'taskID');
-    }
+   public function task()
+   {
+    return $this->belongsTo(Task::class, 'taskID', 'taskID');
+   }
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'userID');
+        return $this->belongsTo(User::class, 'userID', 'userID');
     }
     
 }

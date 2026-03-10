@@ -9,11 +9,13 @@ class Task extends Model
 {
     use HasFactory;
     //fillable fields
-    protected $primaryKey = 'taskID'; //this tells eloquent to use taskID as the primary key instead of id
+    protected $table = 'tasks';
+    protected $primaryKey = 'taskID';
     public $incrementing = true;
     protected $keyType = 'int';
 
      protected $fillable = [
+        'title',
         'description',
         'status',
         'createdBy',
@@ -21,13 +23,6 @@ class Task extends Model
         'createdAt',
         'deadline',
     ];
-
-    //cast to carbon objects for easier date handling
-    protected $casts = [
-    'status' => 'string', 
-    'createdAt' => 'datetime',
-    'deadline' => 'datetime',
-];
 
 
     
@@ -44,7 +39,7 @@ class Task extends Model
 
     public function assignments()
     {
-        return $this->hasMany(TaskAssignment::class, 'taskID');
+    return $this->hasMany(TaskAssignment::class, 'taskID', 'taskID');
     }
 
     public function users()
@@ -55,5 +50,10 @@ class Task extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class, 'taskID');
+    }
+
+    public function members()
+    {
+        return $this->hasMany(ProjectMember::class, 'projectID', 'projectID');
     }
 }

@@ -28,7 +28,10 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+         $message="user {$user->name} Login successful";
+
         return response()->json([
+            "message" => $message,  
             'user'  => $user,
             'token' => $token,
         ]);
@@ -50,7 +53,10 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        $message="{$user->name} Login successful";
+
         return response()->json([
+            "message" => $message,
             'user'  => $user,
             'token' => $token,
         ]);
@@ -61,6 +67,6 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
 
-        return response()->json(['message' => 'Logged out successfully']);
+        return response()->json(['message' => "Logged out successfully"]);
     }
 }

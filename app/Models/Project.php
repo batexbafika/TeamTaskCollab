@@ -7,25 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
-    //fillable fields
-     use HasFactory;
+    use HasFactory;
+
+    protected $primaryKey = 'projectID';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'name',
         'description',
-        'user_id',
+        'createdBy',  
     ];
 
-    //cast to carbon objects for easier date handling
-    protected $casts = [
-    'createdAt' => 'datetime',
-     ];
-
-     //relationships
-
-    public function members()
+    public function creator()
     {
-        return $this->hasMany(ProjectMember::class, 'projectID');
+        return $this->belongsTo(User::class, 'createdBy');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'project_members', 'projectID', 'userID');
     }
 
     public function tasks()
@@ -33,8 +34,8 @@ class Project extends Model
         return $this->hasMany(Task::class, 'projectID');
     }
 
-    public function creator()
+    public function members()
     {
-        return $this->belongsTo(User::class, 'createdBy');
+        return $this->hasMany(ProjectMember::class, 'projectID');
     }
 }

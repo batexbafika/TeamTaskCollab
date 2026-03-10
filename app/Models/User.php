@@ -2,18 +2,26 @@
 
 namespace App\Models;
 
-use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\HasApiTokens; 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Project;
+use App\Models\ProjectMember;
+use App\Models\Task;
+use App\Models\TaskAssignment;
+use App\Models\Comment;
 
 
+//@property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Project[] $projects
 class User extends Authenticatable
 {
         use HasApiTokens, HasFactory, Notifiable;
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
-   
+    protected $primaryKey = 'userID'; // important!
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     /**
      * The attributes that are mass assignable.
@@ -82,4 +90,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class, 'createdBy');
     }
+  
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_members', 'userID', 'projectID')
+                    ->withPivot('role', 'joinedAt'); // optional: include extra pivot fields
+    }
+
+
 }
