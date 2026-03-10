@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 var response = await api.post('/login', body);
                 localStorage.setItem('token', response.token);
                 localStorage.setItem('user', JSON.stringify(response.user));
-                window.location.href = 'dashboard.html';
+                var params = new URLSearchParams(window.location.search);
+                window.location.href = params.get('redirect') || 'dashboard.html';
             } catch (err) {
                 var errBox = document.getElementById('authError');
                 if (errBox) {
@@ -33,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 var response = await api.post('/register', body);
                 localStorage.setItem('token', response.token);
                 localStorage.setItem('user', JSON.stringify(response.user));
-                window.location.href = 'dashboard.html';
+                var params = new URLSearchParams(window.location.search);
+                window.location.href = params.get('redirect') || 'dashboard.html';
             } catch (err) {
                 var errBox = document.getElementById('authError');
                 if (errBox) {

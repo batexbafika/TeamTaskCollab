@@ -176,7 +176,11 @@ document.addEventListener('DOMContentLoaded', function () {
     var currentPath = window.location.pathname;
 
     if (token && userJson && (currentPath.includes('login.html') || currentPath.includes('register.html') || currentPath.endsWith('/') || currentPath.endsWith('index.html'))) {
-        if (currentPath.includes('/html/')) {
+        var params = new URLSearchParams(window.location.search);
+        var redirect = params.get('redirect');
+        if (redirect) {
+            window.location.href = redirect;
+        } else if (currentPath.includes('/html/')) {
             window.location.href = 'dashboard.html';
         } else {
             window.location.href = 'html/dashboard.html';
@@ -187,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!token || !userJson) {
         if (!currentPath.includes('login.html') &&
             !currentPath.includes('register.html') &&
+            !currentPath.includes('dashboard.html') &&
             !currentPath.endsWith('/') &&
             !currentPath.endsWith('index.html')) {
             window.location.href = 'login.html';
