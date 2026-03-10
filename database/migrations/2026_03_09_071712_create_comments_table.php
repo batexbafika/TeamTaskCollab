@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('comments', function (Blueprint $table) {
+            Schema::create('comments', function (Blueprint $table) {
             $table->id('commentID');
+            // FK to tasks.taskID
+            $table->foreignId('taskID')->constrained('tasks', 'taskID')->onDelete('cascade');
+            // FK to users.id
+            $table->foreignId('createdBy')->constrained('users', 'userID')->onDelete('cascade');
             $table->text('message');
-            $table->foreignId('taskID')->constrained('tasks')->onDelete('cascade');
-            $table->foreignId('createdBy')->constrained('users')->onDelete('cascade');
-            $table->timestamp('createdAt')->useCurrent();
             $table->timestamps();
         });
     }
