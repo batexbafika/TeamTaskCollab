@@ -32,7 +32,7 @@ function renderUsers(users) {
             '<h3>' + u.name + '</h3>' +
             '<p class="text-muted">' + u.email + (u.address ? ' &bull; ' + u.address : '') + '</p>' +
             '</div>' +
-            '<button class="btn btn-outline" style="color:#ef4444;border-color:#fecaca;font-size:0.75rem;padding:0.3rem 0.6rem;" onclick="deleteUser(' + u.id + ')">Remove</button>' +
+            '<button class="btn btn-outline" style="color:#ef4444;border-color:#fecaca;font-size:0.75rem;padding:0.3rem 0.6rem;" onclick="deleteUser(' + u.userID + ')">Remove</button>' +
             '</div>';
     }).join('') || '<p class="text-muted">No users found.</p>';
 }

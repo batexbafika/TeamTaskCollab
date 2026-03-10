@@ -67,12 +67,12 @@ function handleMockRequest(endpoint, options) {
     const body = options.body ? JSON.parse(options.body) : null;
 
     if (endpoint === '/login') {
-        const user = { id: 1, name: body.name || 'Mock User', email: body.email, address: null };
+        const user = { userID: 1, name: body.email.split('@')[0], email: body.email, address: null };
         return { user, token: 'mock-jwt-token' };
     }
 
     if (endpoint === '/register') {
-        const user = { id: Date.now(), name: body.name, email: body.email, address: body.address || null };
+        const user = { userID: Date.now(), name: body.name, email: body.email, address: body.address || null };
         return { user, token: 'mock-jwt-token' };
     }
 
@@ -86,10 +86,10 @@ function handleMockRequest(endpoint, options) {
     }
 
     if (endpoint === '/projects') {
-        if (method === 'POST') return { id: Date.now(), name: body.name, description: body.description, createdBy: 1, created_at: new Date().toISOString() };
+        if (method === 'POST') return { projectID: Date.now(), name: body.name, description: body.description, createdBy: 1, created_at: new Date().toISOString() };
         return [
-            { id: 1, name: 'Core System Migration', description: 'Migrate legacy data to new platform', createdBy: 1 },
-            { id: 2, name: 'Frontend Redesign', description: 'Implement new UI components', createdBy: 1 }
+            { projectID: 1, name: 'Core System Migration', description: 'Migrate legacy data to new platform', createdBy: 1 },
+            { projectID: 2, name: 'Frontend Redesign', description: 'Implement new UI components', createdBy: 1 }
         ];
     }
 
@@ -138,9 +138,9 @@ function handleMockRequest(endpoint, options) {
         if (method === 'PUT' || method === 'POST') return { success: true };
         if (method === 'DELETE') return { success: true };
         return [
-            { id: 1, name: 'Admin Chief', email: 'admin@system.com', address: 'Bamenda' },
-            { id: 2, name: 'Lead PM', email: 'pm@system.com', address: 'Douala' },
-            { id: 3, name: 'Dev Ops Agent', email: 'dev@system.com', address: 'Yaounde' }
+            { userID: 1, name: 'Admin Chief', email: 'admin@system.com', address: 'Bamenda' },
+            { userID: 2, name: 'Lead PM', email: 'pm@system.com', address: 'Douala' },
+            { userID: 3, name: 'Dev Ops Agent', email: 'dev@system.com', address: 'Yaounde' }
         ];
     }
 
@@ -154,9 +154,9 @@ function handleMockRequest(endpoint, options) {
 
 function getMockTasks() {
     return [
-        { taskID: 1, description: 'Export all user records from legacy database', status: 'inProgress', projectID: 1, createdBy: 1, deadline: '2026-03-15' },
-        { taskID: 2, description: 'Create responsive header with mobile nav toggle', status: 'completed', projectID: 2, createdBy: 1, deadline: '2026-03-10' },
-        { taskID: 3, description: 'Write automated migration scripts for data transfer', status: 'open', projectID: 1, createdBy: 2, deadline: '2026-03-20' }
+        { taskID: 1, title: 'Database Export', description: 'Export all user records from legacy database', status: 'inProgress', projectID: 1, createdBy: 1, deadline: '2026-03-15' },
+        { taskID: 2, title: 'UI Update', description: 'Create responsive header with mobile nav toggle', status: 'completed', projectID: 2, createdBy: 1, deadline: '2026-03-10' },
+        { taskID: 3, title: 'Scripts', description: 'Write automated migration scripts for data transfer', status: 'open', projectID: 1, createdBy: 2, deadline: '2026-03-20' }
     ];
 }
 

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Dashboard - TaskCollab</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--brand);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: var(--radius);
+            margin-right: 0.35rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--brand);
+            color: white;
+            border-color: var(--brand);
+        }
+
+        .action-btn.danger {
+            color: #ef4444;
+            border-color: #fecaca;
+        }
+
+        .action-btn.danger:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .action-btn.success {
+            color: #10b981;
+            border-color: #a7f3d0;
+        }
+
+        .action-btn.success:hover {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .section-block {
+            margin-bottom: 2rem;
+            scroll-margin-top: 80px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #065f46;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.875rem;
+            z-index: 9999;
+            display: none;
+            box-shadow: var(--shadow);
+            animation: slideInToast 0.3s ease;
+        }
+
+        @keyframes slideInToast {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .inline-input {
+            width: 100%;
+            padding: 0.4rem 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand)">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+                TaskCollab
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Select View</a></li>
+                <li class="nav-item"><a href="#statsSection" class="nav-link active">Dashboard Overview</a></li>
+                <li class="nav-item"><a href="#auditSection" class="nav-link">Global Audit</a></li>
+                <li class="nav-item"><a href="#userSection" class="nav-link">User Control</a></li>
+                <li class="nav-item"><a href="#settingsSection" class="nav-link">System Settings</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-wrapper">
+            <header class="top-bar">
+                <div class="menu-toggle">Menu</div>
+                <div class="nav-user">
+                    <span id="userName" class="text-muted" style="font-weight: 600;">Loading...</span>
+                    <button id="logoutBtn" class="btn btn-outline">Sign Out</button>
+                </div>
+            </header>
+
+            <main class="content-body">
+                <div id="statsSection" class="section-block">
+                    <div class="page-header">
+                        <div>
+                            <span class="role-badge">System Administrator View</span>
+                            <h1 class="page-title">Global Overseer Dashboard</h1>
+                            <p class="text-muted">Manage users, audit all platform projects, and monitor system health.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Platform Users</div>
+                            <div class="stat-value" id="statUsers">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Global Active Projects</div>
+                            <div class="stat-value" id="statProjects">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Global Tasks Created</div>
+                            <div class="stat-value" id="statTasks">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="auditSection" class="section-block">
+                    <div class="card">
+                        <div style="margin-bottom: 1.5rem;">
+                            <h2 style="font-size: 1.25rem;">Global Project Audit</h2>
+                            <p class="text-muted" style="font-size: 0.875rem;">All cross-team projects running on the
+                                platform.</p>
+                        </div>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Project Name</th>
+                                        <th>Description</th>
+                                        <th>Task Count</th>
+                                        <th>Completion</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="globalProjectsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="userSection" class="section-block">
+                    <div class="card">
+                        <div
+                            style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h2 style="font-size: 1.25rem;">User Management Control</h2>
+                                <p class="text-muted" style="font-size: 0.875rem;">View and manage all registered
+                                    platform users.</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="openModal('inviteModal')">Invite New User</button>
+                        </div>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Address</th>
+                                        <th>Registered</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settingsSection" class="section-block">
+                    <div class="card">
+                        <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;">System Settings</h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="stat-card">
+                                <div class="stat-label">API Base URL</div>
+                                <p style="margin-top: 0.5rem; font-weight: 600; word-break: break-all;">
+                                    http://localhost:8000/api</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Authentication</div>
+                                <p style="margin-top: 0.5rem; font-weight: 600;">Laravel Sanctum (Bearer Token)</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Session Token</div>
+                                <p style="margin-top: 0.5rem; font-size: 0.75rem; word-break: break-all; color: var(--text-muted);"
+                                    id="tokenDisplay">Loading...</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Backend Models</div>
+                                <p style="margin-top: 0.5rem;">
+                                    <span class="badge badge-info">User</span>
+                                    <span class="badge badge-info">Project</span>
+                                    <span class="badge badge-warning">Task</span>
+                                    <span class="badge badge-success">Comment</span>
+                                    <span class="badge badge-error">ProjectMember</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="inviteModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem;">Invite New User</h2>
+            <form id="inviteForm">
+                <div class="form-group"><label>Full Name</label><input type="text" name="name" placeholder="John Doe"
+                        required></div>
+                <div class="form-group"><label>Email Address</label><input type="email" name="email"
+                        placeholder="user@company.com" required></div>
+                <div class="form-group"><label>Address (Optional)</label><input type="text" name="address"
+                        placeholder="Bamenda, Cameroon"></div>
+                <div class="form-group"><label>Password (min 8)</label><input type="password" name="password"
+                        minlength="8" required></div>
+                <div class="form-group"><label>Confirm Password</label><input type="password"
+                        name="password_confirmation" minlength="8" required></div>
+                <div class="flex-end">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('inviteModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function showToast(message, type) {
+            var toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#991b1b' : '#065f46';
+            toast.style.display = 'block';
+            setTimeout(function () { toast.style.display = 'none'; }, 3000);
+        }
+
+        async function deleteUser(userId) {
+            try {
+                await api.delete('/users/' + userId);
+                showToast('User removed from platform.');
+                loadUsers();
+            } catch (err) { showToast(err.message, 'error'); }
+        }
+
+        var allUsersData = [];
+
+        async function loadUsers() {
+            var users = await api.get('/users');
+            allUsersData = users;
+            renderUserTable(users);
+        }
+
+        function renderUserTable(users) {
+            var tableBody = document.getElementById('userTableBody');
+            tableBody.innerHTML = users.map(function (u) {
+                return '<tr>' +
+                    '<td><strong>' + u.name + '</strong></td>' +
+                    '<td>' + u.email + '</td>' +
+                    '<td>' + (u.address || '-') + '</td>' +
+                    '<td class="text-muted">' + (u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A') + '</td>' +
+                    '<td><button class="action-btn danger" onclick="deleteUser(' + u.userID + ')">Remove</button></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            var user = JSON.parse(localStorage.getItem('user')) || { name: 'Admin' };
+            document.getElementById('userName').textContent = user.name + ' (Administrator)';
+            document.getElementById('tokenDisplay').textContent = localStorage.getItem('token') || 'No active token';
+
+            try {
+                var results = await Promise.all([
+                    api.get('/admin/stats'),
+                    api.get('/projects'),
+                    api.get('/tasks')
+                ]);
+                var stats = results[0]; var projects = results[1]; var tasks = results[2];
+
+                document.getElementById('statUsers').textContent = stats.total_users || 0;
+                document.getElementById('statProjects').textContent = stats.total_projects || projects.length || 0;
+                document.getElementById('statTasks').textContent = stats.total_tasks || tasks.length || 0;
+
+                var projectBody = document.getElementById('globalProjectsBody');
+                projectBody.innerHTML = projects.map(function (p) {
+                    var projectTasks = tasks.filter(function (t) { return t.projectID === p.projectID; });
+                    var doneCount = projectTasks.filter(function (t) { return t.status === 'completed'; }).length;
+                    var total = projectTasks.length;
+                    var pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+                    return '<tr>' +
+                        '<td><strong>' + p.name + '</strong></td>' +
+                        '<td class="text-muted">' + (p.description || 'No description') + '</td>' +
+                        '<td>' + total + ' Tasks</td>' +
+                        '<td><div style="display:flex;align-items:center;gap:0.5rem;">' +
+                        '<div style="flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden;">' +
+                        '<div style="width:' + pct + '%;height:100%;background:' + (pct > 50 ? '#10b981' : '#f59e0b') + ';"></div>' +
+                        '</div>' +
+                        '<span style="font-size:0.75rem;font-weight:700;">' + pct + '%</span>' +
+                        '</div></td>' +
+                        '</tr>';
+                }).join('');
+
+                await loadUsers();
+            } catch (err) { console.error(err); }
+
+            document.getElementById('inviteForm').onsubmit = async function (e) {
+                e.preventDefault();
+                var formData = new FormData(e.target);
+                var body = Object.fromEntries(formData.entries());
+                try {
+                    await api.post('/register', body);
+                    showToast('User account created successfully.');
+                    closeModal('inviteModal');
+                    e.target.reset();
+                    await loadUsers();
+                } catch (err) { showToast(err.message, 'error'); }
+            };
+
+            document.querySelectorAll('.nav-link[href^="#"]').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var target = document.querySelector(link.getAttribute('href'));
+                    if (target) target.scrollIntoView({ behavior: 'smooth' });
+                    document.querySelectorAll('.nav-link').forEach(function (l) { l.classList.remove('active'); });
+                    link.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

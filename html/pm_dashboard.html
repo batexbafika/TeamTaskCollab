@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Manager Dashboard - TaskCollab</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--brand);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .section-block {
+            margin-bottom: 2rem;
+            scroll-margin-top: 80px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #065f46;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.875rem;
+            z-index: 9999;
+            display: none;
+            box-shadow: var(--shadow);
+            animation: slideInToast 0.3s ease;
+        }
+
+        @keyframes slideInToast {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .workload-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .workload-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand)">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+                TaskCollab
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Select View</a></li>
+                <li class="nav-item"><a href="#overviewSection" class="nav-link active">Project Overview</a></li>
+                <li class="nav-item"><a href="#pipelineSection" class="nav-link">My Pipeline</a></li>
+                <li class="nav-item"><a href="#delegateSection" class="nav-link">Task Delegation</a></li>
+                <li class="nav-item"><a href="#teamSection" class="nav-link">My Team Members</a></li>
+                <li class="nav-item"><a href="#commentsSection" class="nav-link">Task Comments</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-wrapper">
+            <header class="top-bar">
+                <div class="menu-toggle">Menu</div>
+                <div class="nav-user">
+                    <span id="userName" class="text-muted" style="font-weight: 600;">Loading...</span>
+                    <button id="logoutBtn" class="btn btn-outline">Sign Out</button>
+                </div>
+            </header>
+
+            <main class="content-body">
+                <div id="overviewSection" class="section-block">
+                    <div class="page-header">
+                        <div>
+                            <span class="role-badge">Project Manager View</span>
+                            <h1 class="page-title">Operations Dashboard</h1>
+                            <p class="text-muted">Initialize projects, delegate tasks, assign members, and monitor team
+                                execution.</p>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-outline" onclick="openModal('taskModal')">Delegate Task</button>
+                            <button class="btn btn-primary" onclick="openModal('projectModal')">Initialize
+                                Project</button>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card" style="border-left: 4px solid var(--brand);">
+                            <div class="stat-label">My Projects</div>
+                            <div class="stat-value" id="statMyProjects">0</div>
+                        </div>
+                        <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+                            <div class="stat-label">Open Tasks</div>
+                            <div class="stat-value" id="statPending">0</div>
+                        </div>
+                        <div class="stat-card" style="border-left: 4px solid #10b981;">
+                            <div class="stat-label">Team Members</div>
+                            <div class="stat-value" id="statTeam">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pipelineSection" class="section-block">
+                    <div class="card">
+                        <div
+                            style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h2 style="font-size: 1.25rem;">My Pipeline (Projects)</h2>
+                                <p class="text-muted" style="font-size: 0.875rem;">Projects you have initialized.</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="openModal('projectModal')">+ New Project</button>
+                        </div>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Project Name</th>
+                                        <th>Description</th>
+                                        <th>Task Health</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projectTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="delegateSection" class="section-block">
+                    <div class="card">
+                        <div style="margin-bottom: 1.5rem;">
+                            <h2 style="font-size: 1.25rem;">All Tasks</h2>
+                            <p class="text-muted" style="font-size: 0.875rem;">Tasks across all projects and their
+                                current status.</p>
+                        </div>
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Project</th>
+                                        <th>Status</th>
+                                        <th>Deadline</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="delegatedTasksBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="teamSection" class="section-block">
+                    <div class="card">
+                        <div style="margin-bottom: 1.5rem;">
+                            <h2 style="font-size: 1.25rem;">Team Members & Workload</h2>
+                            <p class="text-muted" style="font-size: 0.875rem;">Users registered on the platform and
+                                their task assignments.</p>
+                        </div>
+                        <div id="workloadList"></div>
+                    </div>
+                </div>
+
+                <div id="commentsSection" class="section-block">
+                    <div class="card">
+                        <div style="margin-bottom: 1.5rem;">
+                            <h2 style="font-size: 1.25rem;">Task Comments</h2>
+                            <p class="text-muted" style="font-size: 0.875rem;">Add and view comments on tasks for team
+                                communication.</p>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <form id="commentForm" style="display: flex; gap: 0.75rem;">
+                                <select id="commentTaskSelect" style="min-width: 200px;" required></select>
+                                <input type="text" id="commentMessage" placeholder="Type your comment..."
+                                    style="flex: 1;" required>
+                                <button type="submit" class="btn btn-primary">Post</button>
+                            </form>
+                        </div>
+                        <div id="commentsList"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem;">Initialize New Project</h2>
+            <form id="projectForm">
+                <div class="form-group"><label>Project Name</label><input type="text" name="name"
+                        placeholder="e.g. Core System Migration" required></div>
+                <div class="form-group"><label>Description</label><textarea name="description" rows="3"
+                        placeholder="Describe the project goals..."></textarea></div>
+                <div class="flex-end">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('projectModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Launch Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem;">Create New Task</h2>
+            <form id="delegateTaskForm">
+                <div class="form-group"><label>Target Project</label><select id="taskProjectSelect" required></select>
+                </div>
+                <div class="form-group"><label>Task Title</label><input type="text" id="taskTitleInput" placeholder="Keep it short..." required></div>
+                <div class="form-group"><label>Task Description</label><textarea id="taskDescInput" rows="3"
+                        placeholder="Describe the task..." required></textarea></div>
+                <div class="form-group"><label>Deadline</label><input type="date" id="taskDateInput" required></div>
+                <div class="flex-end">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('taskModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function showToast(message, type) {
+            var toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#991b1b' : '#065f46';
+            toast.style.display = 'block';
+            setTimeout(function () { toast.style.display = 'none'; }, 3000);
+        }
+
+        var allProjects = [];
+        var allTasks = [];
+        var allUsers = [];
+        var allAssignments = [];
+
+        async function loadAllData() {
+            var results = await Promise.all([
+                api.get('/projects'),
+                api.get('/tasks'),
+                api.get('/users'),
+                api.get('/task-assignments')
+            ]);
+            allProjects = results[0];
+            allTasks = results[1];
+            allUsers = results[2];
+            allAssignments = results[3];
+
+            document.getElementById('statMyProjects').textContent = allProjects.length;
+            document.getElementById('statPending').textContent = allTasks.filter(function (t) { return t.status !== 'completed'; }).length;
+            document.getElementById('statTeam').textContent = allUsers.length;
+
+            var projectBody = document.getElementById('projectTableBody');
+            projectBody.innerHTML = allProjects.map(function (p) {
+                var projectTasks = allTasks.filter(function (t) { return t.projectID === p.projectID; });
+                var doneCount = projectTasks.filter(function (t) { return t.status === 'completed'; }).length;
+                var total = projectTasks.length;
+                var pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+                return '<tr>' +
+                    '<td><strong>' + p.name + '</strong></td>' +
+                    '<td class="text-muted">' + (p.description || '-') + '</td>' +
+                    '<td><div style="display:flex;align-items:center;gap:0.5rem;">' +
+                    '<div style="flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden;">' +
+                    '<div style="width:' + pct + '%;height:100%;background:' + (pct > 50 ? '#10b981' : '#f59e0b') + ';"></div>' +
+                    '</div>' +
+                    '<span style="font-size:0.75rem;font-weight:700;">' + pct + '%</span>' +
+                    '</div></td>' +
+                    '<td><button class="btn btn-outline" style="padding:0.25rem 0.5rem;font-size:0.75rem;" onclick="openModal(\'taskModal\')">+ Task</button></td>' +
+                    '</tr>';
+            }).join('') || '<tr><td colspan="4" class="text-muted" style="text-align:center;">No projects yet. Click "Initialize Project".</td></tr>';
+
+            var delegatedBody = document.getElementById('delegatedTasksBody');
+            delegatedBody.innerHTML = allTasks.map(function (t) {
+                var proj = allProjects.find(function (p) { return p.projectID === t.projectID; });
+                return '<tr>' +
+                    '<td><strong>' + (t.title || t.description).substring(0, 60) + ((t.title || t.description).length > 60 ? '...' : '') + '</strong></td>' +
+                    '<td class="text-muted">' + (proj ? proj.name : 'Unassigned') + '</td>' +
+                    '<td><span class="badge ' + mapStatusToBadge(t.status) + '">' + mapStatusToDisplay(t.status) + '</span></td>' +
+                    '<td>' + (t.deadline ? new Date(t.deadline).toLocaleDateString() : 'No deadline') + '</td>' +
+                    '</tr>';
+            }).join('') || '<tr><td colspan="4" class="text-muted" style="text-align:center;">No tasks created yet.</td></tr>';
+
+            var workloadList = document.getElementById('workloadList');
+            workloadList.innerHTML = allUsers.map(function (u) {
+                var userAssignments = allAssignments.filter(function (a) { return a.userID === u.userID; });
+                var assignedTaskIds = userAssignments.map(function (a) { return a.taskID; });
+                var userTasks = allTasks.filter(function (t) { return assignedTaskIds.indexOf(t.taskID) !== -1; });
+                var pending = userTasks.filter(function (t) { return t.status !== 'completed'; }).length;
+                var done = userTasks.filter(function (t) { return t.status === 'completed'; }).length;
+                return '<div class="workload-item">' +
+                    '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+                    '<div style="width:36px;height:36px;border-radius:50%;background:var(--brand);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.875rem;">' + u.name.charAt(0).toUpperCase() + '</div>' +
+                    '<div>' +
+                    '<div style="font-weight:600;">' + u.name + '</div>' +
+                    '<div style="font-size:0.75rem;color:var(--text-muted);">' + u.email + '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div style="text-align:right;display:flex;gap:1.5rem;">' +
+                    '<div><div style="font-weight:700;color:' + (pending > 3 ? '#ef4444' : '#f59e0b') + ';">' + pending + '</div><div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Pending</div></div>' +
+                    '<div><div style="font-weight:700;color:#10b981;">' + done + '</div><div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;">Done</div></div>' +
+                    '</div>' +
+                    '</div>';
+            }).join('') || '<p class="text-muted">No team members found.</p>';
+
+            document.getElementById('taskProjectSelect').innerHTML = allProjects.map(function (p) { return '<option value="' + p.projectID + '">' + p.name + '</option>'; }).join('');
+            document.getElementById('commentTaskSelect').innerHTML = '<option value="">Select a task...</option>' + allTasks.map(function (t) { return '<option value="' + t.taskID + '">' + (t.title || t.description).substring(0, 40) + '</option>'; }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            var user = JSON.parse(localStorage.getItem('user')) || { name: 'Manager' };
+            document.getElementById('userName').textContent = user.name + ' (Project Manager)';
+
+            try { await loadAllData(); } catch (err) { console.error(err); }
+
+            document.getElementById('projectForm').onsubmit = async function (e) {
+                e.preventDefault();
+                var formData = new FormData(e.target);
+                var body = Object.fromEntries(formData.entries());
+                try {
+                    await api.post('/projects', body);
+                    showToast('Project initialized successfully!');
+                    closeModal('projectModal');
+                    e.target.reset();
+                    await loadAllData();
+                } catch (err) { showToast(err.message, 'error'); }
+            };
+
+            document.getElementById('delegateTaskForm').onsubmit = async function (e) {
+                e.preventDefault();
+                var body = {
+                    projectID: parseInt(document.getElementById('taskProjectSelect').value),
+                    title: document.getElementById('taskTitleInput').value.trim() || 'Untitled Task',
+                    description: document.getElementById('taskDescInput').value,
+                    deadline: document.getElementById('taskDateInput').value,
+                    status: 'open'
+                };
+                try {
+                    await api.post('/tasks', body);
+                    showToast('Task created successfully!');
+                    closeModal('taskModal');
+                    document.getElementById('delegateTaskForm').reset();
+                    await loadAllData();
+                } catch (err) { showToast(err.message, 'error'); }
+            };
+
+            document.getElementById('commentForm').onsubmit = async function (e) {
+                e.preventDefault();
+                var taskID = parseInt(document.getElementById('commentTaskSelect').value);
+                var message = document.getElementById('commentMessage').value;
+                if (!taskID) { showToast('Please select a task first.', 'error'); return; }
+                try {
+                    await api.post('/tasks/' + taskID + '/comments', { message: message, taskID: taskID });
+                    showToast('Comment posted!');
+                    document.getElementById('commentMessage').value = '';
+                    var comments = await api.get('/tasks/' + taskID + '/comments');
+                    renderComments(comments);
+                } catch (err) { showToast(err.message, 'error'); }
+            };
+
+            document.getElementById('commentTaskSelect').addEventListener('change', async function () {
+                var taskID = this.value;
+                if (!taskID) return;
+                try {
+                    var comments = await api.get('/tasks/' + taskID + '/comments');
+                    renderComments(comments);
+                } catch (err) { console.error(err); }
+            });
+
+            document.querySelectorAll('.nav-link[href^="#"]').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var target = document.querySelector(link.getAttribute('href'));
+                    if (target) target.scrollIntoView({ behavior: 'smooth' });
+                    document.querySelectorAll('.nav-link').forEach(function (l) { l.classList.remove('active'); });
+                    link.classList.add('active');
+                });
+            });
+        });
+
+        function renderComments(comments) {
+            var list = document.getElementById('commentsList');
+            list.innerHTML = comments.map(function (c) {
+                var author = allUsers.find(function (u) { return u.userID === c.createdBy; });
+                return '<div style="padding:0.75rem 0;border-bottom:1px solid var(--border);">' +
+                    '<div style="display:flex;justify-content:space-between;">' +
+                    '<strong>' + (author ? author.name : 'User #' + c.createdBy) + '</strong>' +
+                    '<span class="text-muted" style="font-size:0.75rem;">' + (c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '') + '</span>' +
+                    '</div>' +
+                    '<p style="margin-top:0.25rem;font-size:0.875rem;">' + c.message + '</p>' +
+                    '</div>';
+            }).join('') || '<p class="text-muted">No comments yet. Select a task and post one.</p>';
+        }
+    </script>
+</body>
+
+</html>

@@ -33,7 +33,7 @@ async function refreshDashboard(user) {
                 return '<div class="card project-card">' +
                     '<h3>' + p.name + '</h3>' +
                     '<p class="text-muted">' + (p.description || 'No description') + '</p>' +
-                    '<div class="flex-end mt-4"><a href="projects.html?id=' + p.id + '" class="btn-text">Manage</a></div>' +
+                    '<div class="flex-end mt-4"><a href="projects.html?id=' + p.projectID + '" class="btn-text">Manage</a></div>' +
                     '</div>';
             }).join('') || '<p class="text-muted">No projects created yet.</p>';
         }
@@ -41,12 +41,13 @@ async function refreshDashboard(user) {
         var memberList = document.getElementById('memberTaskList');
         if (memberList) {
             var assignments = await api.get('/task-assignments');
-            var myAssignments = assignments.filter(function (a) { return a.userID === user.id; });
+            var myAssignments = assignments.filter(function (a) { return a.userID === user.userID; });
             var myTaskIds = myAssignments.map(function (a) { return a.taskID; });
             var myTasks = allTasks.filter(function (t) { return myTaskIds.indexOf(t.taskID) !== -1; });
             if (myTasks.length === 0) myTasks = allTasks;
             memberList.innerHTML = myTasks.map(function (t) {
                 return '<div class="card task-card">' +
+                    '<h4>' + (t.title || 'Task') + '</h4>' +
                     '<p>' + t.description + '</p>' +
                     '<div class="flex-end mt-4" style="justify-content:space-between;align-items:center;">' +
                     '<span class="badge ' + mapStatusToBadge(t.status) + '">' + mapStatusToDisplay(t.status) + '</span>' +
@@ -73,7 +74,7 @@ function renderOverdue(tasks) {
     var overdue = tasks.filter(function (t) { return new Date(t.deadline) < now && t.status !== 'completed'; });
     container.innerHTML = overdue.map(function (t) {
         return '<div class="flex-end" style="justify-content:space-between;border-bottom:1px solid var(--border);padding:0.5rem 0;">' +
-            '<span>' + t.description.substring(0, 40) + '</span>' +
+            '<span>' + (t.title || t.description).substring(0, 40) + '</span>' +
             '<span class="overdue">Due: ' + new Date(t.deadline).toLocaleDateString() + '</span>' +
             '</div>';
     }).join('') || '<p class="text-success">No overdue tasks!</p>';

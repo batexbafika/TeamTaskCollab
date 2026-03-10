@@ -57,7 +57,7 @@ async function loadUsersForAssignment() {
         var users = await api.get('/users');
         var select = document.querySelector('select[name="assigned_to"]');
         if (select) {
-            select.innerHTML = users.map(function (u) { return '<option value="' + u.id + '">' + u.name + '</option>'; }).join('');
+            select.innerHTML = users.map(function (u) { return '<option value="' + u.userID + '">' + u.name + '</option>'; }).join('');
         }
     } catch (err) { console.error(err); }
 }
