@@ -188,8 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!currentPath.includes('login.html') &&
             !currentPath.includes('register.html') &&
             !currentPath.endsWith('/') &&
-            !currentPath.endsWith('index.html') &&
-            !currentPath.includes('dashboard.html')) {
+            !currentPath.endsWith('index.html')) {
             window.location.href = 'login.html';
         }
         return;
