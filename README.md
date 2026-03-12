@@ -22,7 +22,7 @@ This system is designed to help teams manage projects, assign tasks, and collabo
 
 ---
 
-### Frontend JS Developer — *njeko catherine46*
+### Frontend JS Developer — *Yannick*
 - Form validation  
 - API fetch / integration  
 - Handling responses properly in UI  
@@ -33,7 +33,7 @@ Ensure no unvalidated form is submitted and API responses are correctly handled.
 
 ---
 
-### HTML + CSS Team (Combined Role) — *Busted23* and *SUKUNA*
+### HTML + CSS Team (Combined Role) — *njeko catherine + Yannick(optional)*
 - Semantic HTML structuring  
 - Custom CSS styling  
 - Mobile-first responsiveness (`@media` queries)  
